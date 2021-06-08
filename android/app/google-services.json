@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "118846275994",
+    "project_id": "quest-ec662",
+    "storage_bucket": "quest-ec662.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118846275994:android:df6a42c6bb00730c9bba23",
+        "android_client_info": {
+          "package_name": "com.quest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "118846275994-astefo2jp6af9aaeuesqadjo5sol4lvm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkcOkk2FG1ikIhYqm0fGLVoBh5sD8hJGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "118846275994-astefo2jp6af9aaeuesqadjo5sol4lvm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
