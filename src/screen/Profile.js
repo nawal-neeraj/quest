@@ -11,6 +11,7 @@ import {
 } from 'react-native-popup-menu';
 import { clearLogin, getLogin } from '../config/AppAuth';
 import { AppConfig } from '../config/AppConfig';
+import auth, { firebase } from '@react-native-firebase/auth';
 
 const { SlideInMenu } = renderers;
 
@@ -20,45 +21,55 @@ export default class Profile extends Component {
         super(props);
         this.state = {
             show: false,
-            userName: '',
+            userEmail: '',
             UserPhoneNo: '',
             noData: false,
-            userId:''
+            userId: '',
+            userDispName:''
         }
     }
 
     componentDidMount() {
-        this.loginGet();
-        
+        this.getUserDetails();
+
     }
 
-    loginGet = () =>{
+    loginGet = () => {
         getLogin().then(user => {
             // console.log(user, "<====")
-            if( user != null){
+            if (user != null) {
                 this.setState({
-                    userId:user.id
-                }, 
-                () => this.getUserDetails());
-            } else{
+                    userId: user.id
+                },
+                    () => this.getUserDetails());
+            } else {
                 this.setState({
-                    noData:true
+                    noData: true
                 })
             }
         })
     }
 
     getUserDetails = () => {
-        const {userId} = this.state
-        let url = `${AppConfig.API_URL}user_details&id=${userId}`
-        fetch(url).then((response) => response.json()).then((res) => {
-            console.log(res.data.email_id,"<======user details")
-            this.setState({
-                userName: res.data.first_name,
-                UserPhoneNo:res.data.phone_no,
-                userEmail:res.data.email_id
-            })
-        })
+        this.subscribe = auth().onAuthStateChanged(user => {
+            console.log(user,"<==Nawal")
+            if(user != null){
+                this.setState({
+                    userId: user._user.uid,
+                    userEmail: user._user.email,
+                    userDispName: user._user.displayName
+                })
+            }else{
+                this.setState({
+                    noData: true
+                })
+            }
+            
+        });
+    }
+
+    componentWillUnmount(){
+        this.subscribe()
     }
 
     HandleOption = () => {
@@ -68,18 +79,16 @@ export default class Profile extends Component {
     }
 
     handleLogOut = () => {
-        const { push } = this.props.navigation
-        clearLogin().then(() => {
-            push('Login')
-            this.setState({
-                show: false
-            })
-        })
+        auth()
+  .signOut()
+  .then(() => this.props.navigation.navigate('profile'))
     }
+    
 
     render() {
         const { goBack, navigate } = this.props.navigation
-        const { userName, UserPhoneNo, noData, userEmail } = this.state
+        const { userName, UserPhoneNo, noData, userEmail, userDispName } = this.state
+        // console.log(userEmail, userDispName,"<==")
         return (
             <Container>
                 <Header style={{ backgroundColor: AppTheme.PRIMARY, }} androidStatusBarColor={AppTheme.PRIMARY}>
@@ -101,31 +110,31 @@ export default class Profile extends Component {
                     <View style={{ paddingTop: 15, paddingLeft: 10, paddingRight: 10 }}>
                         <View style={{ height: 200, borderWidth: 1, borderColor: AppTheme.PRIMARY, borderRadius: 10 }}>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <View style={{ flex: 1, justifyContent: 'center' }}></View>
-                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: '5%' }}>
+                                {/* <View style={{ flex: 1, justifyContent: 'center' }}></View> */}
+                                <View style={{ flex: 2, justifyContent: 'center', paddingTop: '5%' }}>
                                     <View>
                                         <Image style={{ height: 100, width: 100 }} source={require('../Assets/profilePic.png')} />
                                     </View>
                                     {!this.state.noData && (
-                                        <View>
-                                            <View style={{ alignItems: 'center', justifyContent: 'center', padding: 5 }}>
-                                                <Text>{UserPhoneNo}</Text>
+                                        <View style={{ paddingLeft: 5 }}>
+                                            <View style={{ justifyContent: 'center'}}>
+                                                <Text>Name: {userDispName}</Text>
                                             </View>
-                                            <View style={{ alignItems: 'center', justifyContent: 'center', padding: 5 }}>
-                                                <Text>{userName}</Text>
+                                            <View style={{ justifyContent: 'center' }}>
+                                                <Text>Email: {userEmail}</Text>
                                             </View>
                                         </View>
-                                     )}
+                                    )}
                                     {this.state.noData == true && (
-                                        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={{ alignItems: 'center', paddingTop:10 }}>
-                                            <Text style={{ color: 'blue', fontWeight:'bold'}}>Login/Signup</Text>
+                                        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={{ alignItems: 'center', paddingTop: 10 }}>
+                                            <Text style={{ color: 'blue', fontWeight: 'bold' }}>Login/Signup</Text>
                                         </TouchableOpacity>
-                                     )} 
+                                    )}
                                 </View>
-                                <View style={{ flex: 0.1, justifyContent: 'center' }}></View>
+                                {/* <View style={{ flex: 0.1, justifyContent: 'center' }}></View> */}
                                 <TouchableOpacity
-                                onPress={() => navigate('EditProfile')}
-                                style={{ flex: 1, justifyContent: 'center' }}>
+                                    onPress={() => navigate('EditProfile')}
+                                    style={{ flex: 1, justifyContent: 'center' }}>
                                     <Text style={{ color: 'blue', fontWeight: 'bold' }}>
                                         Edit Profile
                                 </Text>
@@ -147,128 +156,23 @@ export default class Profile extends Component {
                         </View>
                         {/*---------------------- card section------------------------- */}
                         <View style={{ paddingTop: 20 }}>
-                            <View>
+                            {!this.state.noData && (
+                            <TouchableOpacity onPress= {() => this.handleLogOut()}>
                                 <Card style={{ padding: 10, borderRadius: 10 }}>
                                     <CardItem>
                                         <View style={{ padding: 5 }}>
                                             <Icon name="card-account-details-outline" type="MaterialCommunityIcons" />
                                         </View>
                                         <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>BHIM UPI ID</Text>
+                                            <Text>Logout</Text>
                                         </Body>
                                         <Right>
                                             <Icon name="arrow-forward" />
                                         </Right>
                                     </CardItem>
                                 </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="lock-outline" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>Change Password</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="arrow-forward" />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="qrcode-scan" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>QR Code</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="arrow-forward" />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="note-text-outline" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>Bill Charges</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="arrow-forward" />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="alpha-l-box-outline" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>Language</Text>
-                                        </Body>
-                                        <Right>
-                                            <Text style={{ color: 'blue', justifyContent: 'center' }}>Change</Text>
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="map-marker-outline" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>My Address</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="arrow-forward" />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 10 }}>
-                                <Card style={{ padding: 10, borderRadius: 10 }}>
-                                    <CardItem>
-                                        <View style={{ padding: 5 }}>
-                                            <Icon name="clipboard-list-outline" type="MaterialCommunityIcons" />
-                                        </View>
-                                        <Body style={{ padding: 5, paddingLeft: 10, justifyContent: 'center' }}>
-                                            <Text>Privacy Policies</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="arrow-forward" />
-                                        </Right>
-                                    </CardItem>
-                                </Card>
-                            </View>
-                            <View style={{ paddingTop: 20, paddingLeft: 10, paddingRight: 10, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <View>
-                                    <View >
-                                        <Text style={{ color: 'blue' }}>
-                                            KYC Details
-                                    </Text>
-                                    </View>
-                                    <View style={{ paddingTop: 10 }}>
-                                        <Text style={{ color: '#75777C' }}>
-                                            Complete Your KYC Details
-                                    </Text>
-                                    </View>
-                                </View>
-                                <View style={{ paddingTop: '5%' }}>
-                                    <Text style={{ color: AppTheme.PRIMARY }}>Check</Text>
-                                </View>
-                            </View>
+                            </TouchableOpacity>
+                            )}
                         </View>
                     </View>
                 </Content>

@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
-import { Button, Container, Left, Icon, Right, Body, Title, Input, Card, CardItem, Content, Header, Text, Toast } from 'native-base';
+import { Button, Container, Left, Icon, Header, Text, Toast } from 'native-base';
 import { TextInput, TouchableOpacity, View, Dimensions, StyleSheet, ScrollView, Image, BackHandler } from 'react-native'
 import { AppTheme } from '../themes/AppTheme';
-import AppHeader from '../components/AppHeader';
 import { getLogin, setLogin } from '../config/AppAuth';
-import { AppConfig } from '../config/AppConfig';
 import auth from '@react-native-firebase/auth';
 
 export default class Login extends Component {
@@ -21,13 +19,17 @@ export default class Login extends Component {
 
     componentDidMount() {
         // console.log('working')
-        this.subscribe = auth().onAuthStateChanged(user => {
-            if (!user) {
-                console.log("hello")
-            }
-        });
+        // this.subscribe = auth().onAuthStateChanged(user => {
+        //     if (!user) {
+        //         console.log("hello")
+        //     }
+        // });
         this.backButtonSubscription();
 
+    }
+
+    componentWillUnmount () {
+        this.subscribe
     }
 
     backButtonSubscription = () => {
@@ -85,20 +87,24 @@ export default class Login extends Component {
     getApiLogin = () => {
         const { email, password } = this.state
         auth()
-            .createUserWithEmailAndPassword(email, password)
+            .signInWithEmailAndPassword(email, password)
             .then(() => {
-                console.log('User account created & signed in!');
+                this.props.navigation.navigate('Home')
             })
             .catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
                     console.log('That email address is already in use!');
+
                 }
 
                 if (error.code === 'auth/invalid-email') {
                     console.log('That email address is invalid!');
                 }
 
-                console.error(error);
+                // console.error(error,"<====");
+                Toast.show({
+                    text:"User not found"
+                })
             });
     }
 

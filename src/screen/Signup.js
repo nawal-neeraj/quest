@@ -4,6 +4,8 @@ import { TextInput, TouchableOpacity, View, Dimensions, StyleSheet, ScrollView, 
 import { AppTheme } from '../themes/AppTheme';
 import { Formik } from 'formik'
 import { AppConfig } from '../config/AppConfig';
+import auth from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/database';
 
 export default class Signup extends Component {
     constructor(props) {
@@ -45,18 +47,38 @@ export default class Signup extends Component {
         } else { Toast.show({ text: 'Enter your name' }) }
     }
 
-    handleSiginUp = (values) => {
-        let url = `${AppConfig.API_URL}signup&mobile=${values.number}&name=${values.name}&passwd=${values.cnpassword}&email=${values.email}`
-        console.log(url)
-        fetch(url).then((response) => response.json()).then((resp) =>{
-            // console.log(resp,"<=====")
-            if(resp.status){
+    handleSiginUp = async(values) => {
+        console.log(values)
+        auth()
+            .createUserWithEmailAndPassword(values.email, values.password)
+            .then((userCredentials) => {
+                if(userCredentials.user){
+                    console.log(userCredentials.user,"<======")
+                    const update = {
+                        displayName: values.name,
+                        phoneNumber: values.number
+                      };
+                      firebase.auth().currentUser.updateProfile(update);
+                }
                 this.props.navigation.navigate('Login')
+            })
+            .catch(error => {
+                if (error.code === 'auth/email-already-in-use') {
+                    console.log('That email address is already in use!');
+
+                }
+
+                if (error.code === 'auth/invalid-email') {
+                    console.log('That email address is invalid!');
+                }
+
+                // console.error(error,"<====");
                 Toast.show({
-                    text: resp.message
+                    text:"User not found"
                 })
-            }
-        })
+            });
+            
+              
     }
 
     render() {

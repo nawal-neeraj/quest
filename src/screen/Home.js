@@ -6,6 +6,7 @@ import AppHeader from '../components/AppHeader'
 import AppFooter from '../components/AppFooter';
 import { SliderBox } from "react-native-image-slider-box";
 import { AppTheme } from '../themes/AppTheme';
+import auth from '@react-native-firebase/auth';
 const win = Dimensions.get('window');
 
 
@@ -27,7 +28,12 @@ export default class Home extends Component {
     
 
     componentDidMount() {
-        
+        // this.subscribe = auth().onAuthStateChanged(user => {
+        //     if (!user) {
+        //         console.log("hello")
+        //     }
+        //     console.log(user,"details")
+        // });
     }
 
     
@@ -69,50 +75,6 @@ export default class Home extends Component {
                         </View>
 
                         {/*----- another section -----  */}
-
-                        <View style={{ paddingTop: 20 }}>
-                            <View>
-                                <Text style={{ fontSize: 16 }}>Make easy money transfer</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                <View style={{ alignItems: 'center', paddingLeft: 10, paddingRight: 10, paddingTop: 20, width: '25%' }}>
-                                    <TouchableOpacity style={{ backgroundColor: AppTheme.PRIMARY, alignItems: 'center', padding: 10, borderRadius: 50 }}
-                                        onPress={() => navigate('Contacts')}
-                                    >
-                                        <Icon style={{ color: '#fff' }} name="phone-outline" type='MaterialCommunityIcons' />
-                                    </TouchableOpacity>
-                                    <View style={{ paddingTop: 10 }}>
-                                        <Text style={{ textAlign: 'center' }}>To contacts</Text>
-                                    </View>
-                                </View>
-                                <View style={{ alignItems: 'center', paddingLeft: 10, paddingRight: 10, paddingTop: 20, width: '25%' }}>
-                                    <TouchableOpacity style={{ backgroundColor: AppTheme.PRIMARY, alignItems: 'center', padding: 10, borderRadius: 50 }}
-                                        onPress={() => navigate('Account')}
-                                    >
-                                        <Icon style={{ color: '#fff' }} name="account-cog-outline" type='MaterialCommunityIcons' />
-                                    </TouchableOpacity>
-                                    <View style={{ paddingTop: 10 }}>
-                                        <Text style={{ textAlign: 'center' }}>To Account</Text>
-                                    </View>
-                                </View>
-                                <View style={{ alignItems: 'center', paddingLeft: 10, paddingRight: 10, paddingTop: 20, width: '25%' }}>
-                                    <TouchableOpacity onPress={() => navigate('ActivateWallet')} style={{ backgroundColor: AppTheme.PRIMARY, alignItems: 'center', padding: 10, borderRadius: 50 }}>
-                                        <Icon style={{ color: '#fff' }} name="wallet-outline" type='MaterialCommunityIcons' />
-                                    </TouchableOpacity>
-                                    <View style={{ paddingTop: 10 }}>
-                                        <Text style={{ textAlign: 'center' }}>Activate wallet</Text>
-                                    </View>
-                                </View>
-                                <View style={{ alignItems: 'center', paddingLeft: 10, paddingRight: 10, paddingTop: 20, width: '25%' }}>
-                                    <TouchableOpacity style={{ backgroundColor: AppTheme.PRIMARY, alignItems: 'center', padding: 10, borderRadius: 50 }}>
-                                        <Icon style={{ color: '#fff' }} name="currency-inr" type='MaterialCommunityIcons' />
-                                    </TouchableOpacity>
-                                    <View style={{ paddingTop: 10 }}>
-                                        <Text style={{ textAlign: 'center' }}>Add money</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
 
                         {/*------- prepaid recharge section------- */}
 
@@ -163,10 +125,7 @@ export default class Home extends Component {
                             </Card> */}
                             </View>
                         </View>
-
-
                         {/* -------banner section=------ */}
-
 
                         <View style={{ marginTop: 5 }}>
                             <View style={styles.scrollBox}>
