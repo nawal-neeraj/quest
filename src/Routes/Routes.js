@@ -22,7 +22,7 @@ function AppRouter(){
     return(
         <NavigationContainer>
             <Stack.Navigator
-            initialRouteName="Home"
+            initialRouteName="Login"
             screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="Login" component={Login}></Stack.Screen>
                 <Stack.Screen name="Signup" component={Signup}></Stack.Screen>

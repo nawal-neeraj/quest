@@ -14,23 +14,20 @@ export default class Login extends Component {
             password: '',
             show: true
         }
-        this.userLogin()
     }
 
     componentDidMount() {
         // console.log('working')
-        // this.subscribe = auth().onAuthStateChanged(user => {
-        //     if (!user) {
-        //         console.log("hello")
-        //     }
-        // });
+        this.subscribe = auth().onAuthStateChanged(user => {
+            if (user) {
+                this.props.navigation.navigate('Home')
+            }
+        });
         this.backButtonSubscription();
 
     }
 
-    componentWillUnmount() {
-        this.subscribe
-    }
+    
 
     backButtonSubscription = () => {
         const { navigation } = this.props;
@@ -51,18 +48,6 @@ export default class Login extends Component {
         true;
     };
 
-    userLogin = () => {
-        getLogin().then((us) => {
-            if (us != null) {
-                this.props.navigation.navigate('Home')
-                // console.log(us)
-            } else {
-                // alert('do login')
-                return null
-            }
-        })
-
-    }
 
     handleChangeEmail = (email) => {
         this.setState({
@@ -93,12 +78,15 @@ export default class Login extends Component {
             })
             .catch(error => {
                 if (error.code === 'auth/email-already-in-use') {
-                    console.log('That email address is already in use!');
-
+                    Toast.show({
+                        text:'That email address is already in use!'
+                    })
                 }
 
                 if (error.code === 'auth/invalid-email') {
-                    console.log('That email address is invalid!');
+                    Toast.show({
+                        text:'That email address is invalid!'
+                    })
                 }
 
                 // console.error(error,"<====");

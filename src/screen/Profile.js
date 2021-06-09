@@ -34,25 +34,10 @@ export default class Profile extends Component {
 
     }
 
-    loginGet = () => {
-        getLogin().then(user => {
-            // console.log(user, "<====")
-            if (user != null) {
-                this.setState({
-                    userId: user.id
-                },
-                    () => this.getUserDetails());
-            } else {
-                this.setState({
-                    noData: true
-                })
-            }
-        })
-    }
 
     getUserDetails = () => {
         this.subscribe = auth().onAuthStateChanged(user => {
-            console.log(user,"<==Nawal")
+            console.log(user)
             if(user != null){
                 this.setState({
                     userId: user._user.uid,
