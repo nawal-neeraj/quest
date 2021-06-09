@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Container, Left, Icon, Header, Text, Toast } from 'native-base';
+import { Button, Container, Left, Icon, Header, Text, Toast, List, ListItem } from 'native-base';
 import { TextInput, TouchableOpacity, View, Dimensions, StyleSheet, ScrollView, Image, BackHandler } from 'react-native'
 import { AppTheme } from '../themes/AppTheme';
 import { getLogin, setLogin } from '../config/AppAuth';
@@ -28,7 +28,7 @@ export default class Login extends Component {
 
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.subscribe
     }
 
@@ -103,7 +103,7 @@ export default class Login extends Component {
 
                 // console.error(error,"<====");
                 Toast.show({
-                    text:"User not found"
+                    text: "User not found"
                 })
             });
     }
@@ -112,6 +112,10 @@ export default class Login extends Component {
         this.setState({
             show: !this.state.show
         })
+    }
+
+    handlePassReset = () =>{
+        this.props.navigation.navigate('ResetPass')
     }
 
     render() {
@@ -164,6 +168,16 @@ export default class Login extends Component {
                         <Button full style={{ borderRadius: 30, backgroundColor: AppTheme.PRIMARY }} onPress={() => this.props.navigation.navigate('Signup')}>
                             <Text>Signup</Text>
                         </Button>
+                    </View>
+                    <View>
+                        <List >
+                            <ListItem style={{ alignSelf: 'center' }} noBorder={true}>
+                                <Text>forget password?</Text>
+                                <TouchableOpacity onPress={() => this.handlePassReset()}>
+                                    <Text style={{ color: AppTheme.PRIMARY, paddingLeft:2 }}>Reset Password</Text>
+                                </TouchableOpacity>
+                            </ListItem>
+                        </List>
                     </View>
                 </View>
             </Container>

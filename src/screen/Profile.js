@@ -57,7 +57,8 @@ export default class Profile extends Component {
                 this.setState({
                     userId: user._user.uid,
                     userEmail: user._user.email,
-                    userDispName: user._user.displayName
+                    userDispName: user._user.displayName,
+                    dispImage: user._user.photoURL
                 })
             }else{
                 this.setState({
@@ -87,7 +88,7 @@ export default class Profile extends Component {
 
     render() {
         const { goBack, navigate } = this.props.navigation
-        const { userName, UserPhoneNo, noData, userEmail, userDispName } = this.state
+        const { userName, UserPhoneNo, noData, userEmail, userDispName, dispImage } = this.state
         // console.log(userEmail, userDispName,"<==")
         return (
             <Container>
@@ -112,11 +113,11 @@ export default class Profile extends Component {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 {/* <View style={{ flex: 1, justifyContent: 'center' }}></View> */}
                                 <View style={{ flex: 2, justifyContent: 'center', paddingTop: '5%' }}>
-                                    <View>
-                                        <Image style={{ height: 100, width: 100 }} source={require('../Assets/profilePic.png')} />
-                                    </View>
                                     {!this.state.noData && (
                                         <View style={{ paddingLeft: 5 }}>
+                                            <View>
+                                        <Image style={{ height: 100, width: 100, borderRadius:50 }} source={{uri: dispImage}} />
+                                    </View>
                                             <View style={{ justifyContent: 'center'}}>
                                                 <Text>Name: {userDispName}</Text>
                                             </View>
@@ -126,9 +127,12 @@ export default class Profile extends Component {
                                         </View>
                                     )}
                                     {this.state.noData == true && (
+                                        <View>
+                                        <Image style={{ height: 100, width: 100 }} source={require('../Assets/profilePic.png')} />
                                         <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={{ alignItems: 'center', paddingTop: 10 }}>
                                             <Text style={{ color: 'blue', fontWeight: 'bold' }}>Login/Signup</Text>
                                         </TouchableOpacity>
+                                    </View>
                                     )}
                                 </View>
                                 {/* <View style={{ flex: 0.1, justifyContent: 'center' }}></View> */}

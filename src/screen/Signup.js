@@ -53,10 +53,10 @@ export default class Signup extends Component {
             .createUserWithEmailAndPassword(values.email, values.password)
             .then((userCredentials) => {
                 if(userCredentials.user){
-                    console.log(userCredentials.user,"<======")
+                    // console.log(userCredentials.user,"<======")
                     const update = {
                         displayName: values.name,
-                        phoneNumber: values.number
+                        photoURL: 'https://source.unsplash.com/1024x768/?tree'
                       };
                       firebase.auth().currentUser.updateProfile(update);
                 }

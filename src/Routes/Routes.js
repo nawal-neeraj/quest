@@ -13,6 +13,7 @@ import Profile from '../screen/Profile';
 import Login from '../screen/Login';
 import Signup from '../screen/Signup';
 import Editprofile from '../screen/Editprofile';
+import ResetPass from '../screen/ResetPass';
 
 const Stack = createStackNavigator();
 // const Drawer = createDrawerNavigator();
@@ -28,6 +29,7 @@ function AppRouter(){
                 <Stack.Screen name="Home" component={Home}></Stack.Screen>
                 <Stack.Screen name="Profile" component={Profile}></Stack.Screen>
                 <Stack.Screen name="EditProfile" component={Editprofile}></Stack.Screen>
+                <Stack.Screen name="ResetPass" component={ResetPass}></Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
     )
