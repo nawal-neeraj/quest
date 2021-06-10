@@ -106,8 +106,9 @@ export default class Editprofile extends Component {
             this.setState({ logo: img, uploaded: true });
             // console.log("resp.fileName==>", resp.base64);
             // console.log("resp.fileName==>", img.base64);
-            // console.log("fileName==>", resp.uri);
-            const fileName = await uploadPhoto(resp.base64);
+            console.log("fileName==>", resp.uri);
+            const fileName = await uploadPhoto(resp.uri);
+            console.log(fileName,"url edit page")
             // const fileName = uploadPhoto(img.uri);
             //   if(fileName){
             //     this.setState({
@@ -152,12 +153,12 @@ export default class Editprofile extends Component {
   }
 
   render() {
-    const { goBack } = this.props.navigation
+    const { push } = this.props.navigation
     return (
       <Container>
         <AppHeader>
           <Left>
-            <Button onPress={goBack} transparent>
+            <Button onPress={() => push('Profile')} transparent>
               <Icon name="arrow-back" />
             </Button>
           </Left>

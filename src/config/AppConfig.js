@@ -1,35 +1,45 @@
 import { firebase } from '@react-native-firebase/database';
-import uuid from 'react-native-uuid';
+import { v4 as uuidv4 } from 'uuid'
 import storage from '@react-native-firebase/storage';
+import { utils } from '@react-native-firebase/app';
+import { Toast } from 'native-base';
 export const AppConfig = {
-    API_URL : 'https://www.firstpay.org.in/api/customer/users/?m='
+  API_URL: 'https://www.firstpay.org.in/api/customer/users/?m='
 }
 
 export const uploadPhoto = async (imageData) => {
-  console.log(imageData)
-  const ref = firebase
-  .storage()
-  .ref()
-  .child(uuid.v4());
-
-  const blob = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      resolve(xhr.response);
-    };
-    xhr.onerror = function() {
-      reject(new TypeError("Network request failed"));
-    };
-    xhr.responseType = "blob";
-    xhr.open("GET", imageData, true);
-    xhr.send(null);
-  });
-  
-  var mimeString = uri.split(",")[0].split(":")[1].split(";")[0];
-
-    const snapshot = await ref.put(blob, { contentType: mimeString });
-    let url = await snapshot.ref.getDownloadURL();
-    // let result = await resp.json();
-    console.log(url,"results")
-    // return result.data.file;
-  };
+  // console.log(imageData)
+  var imageUri = ""
+  const imageFile = imageData.split(',').pop();
+  console.log("My image File", imageFile)
+  const uuid = uuidv4();
+  // console.log(uuid,"<++")
+  const imageName = `${uuid}.${imageFile}`;
+  // console.log(imageName,"dekhte hain")
+  var storageref = firebase.storage().ref(`profile.image/${imageName}`)
+  storageref.putFile(imageData)
+    .on(
+      firebase.storage.TaskEvent.STATE_CHANGED,
+      snapshot => {
+        // console.log(snapshot, "lets see")
+        if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
+          console.log(snapshot.ref.path,"here is the code")
+          firebase.storage().ref(snapshot.ref.path).getDownloadURL().then((downloadURL) => {
+            // console.log("file avilable", downloadURL)
+            Toast.show({
+              text:'Picture updatetd successfully'
+            })
+            const update = {
+              photoURL: downloadURL
+            };
+            firebase.auth().currentUser.updateProfile(update);
+          })
+        }
+      },
+      error => {
+        unsubscribe();
+        console.log(error.toString())
+      }
+    )
+    //  console.log(imageUri,"finally uri") 
+};

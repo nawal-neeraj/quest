@@ -79,7 +79,7 @@ export default class Profile extends Component {
             <Container>
                 <Header style={{ backgroundColor: AppTheme.PRIMARY, }} androidStatusBarColor={AppTheme.PRIMARY}>
                     <Left>
-                        <Button onPress={goBack} transparent>
+                        <Button onPress={() => navigate('Home')} transparent>
                             <Icon name="arrow-back" />
                         </Button>
                     </Left>
