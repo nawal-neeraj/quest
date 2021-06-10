@@ -1,6 +1,6 @@
 import { Body, Button, Container, Content, Header, Icon, Left, Right, Title, Card, CardItem, ListItem, List } from 'native-base'
 import React, { Component } from 'react'
-import { Text, View, Image, Modal, TouchableOpacity, ScrollView, StyleSheet, ImageBackground, PermissionsAndroid, TextInput } from 'react-native'
+import { Text, View, ActivityIndicator, Modal, TouchableOpacity, ScrollView, StyleSheet, ImageBackground, PermissionsAndroid, TextInput } from 'react-native'
 import { AppTheme } from '../themes/AppTheme'
 import { clearLogin, getLogin } from '../config/AppAuth';
 import { AppConfig, uploadPhoto } from '../config/AppConfig';
@@ -9,6 +9,11 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 var ImagePicker = require('react-native-image-picker');
 import database, { firebase } from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+import { v4 as uuidv4 } from 'uuid'
+import storage from '@react-native-firebase/storage';
+import { utils } from '@react-native-firebase/app';
+import { Toast } from 'native-base';
+
 
 export default class Editprofile extends Component {
   constructor(props) {
@@ -19,7 +24,8 @@ export default class Editprofile extends Component {
       image: null,
       showModal: false,
       name: '',
-      password: ''
+      password: '',
+      loader: true
     };
   }
 
@@ -64,24 +70,14 @@ export default class Editprofile extends Component {
             let img = { uri: resp };
             this.setState({ showModal: false })
             this.setState({ logo: img.uri.base64, uploaded: true });
-            // console.log("resp.fileName==>", img.uri.base64);
-            // console.log("resp.fileName==>", img.base64);
-            // console.log("fileName==>", img.base64);
-            const fileName = await uploadPhoto(img.uri.base64);
-            // const fileName = uploadPhoto(img.uri);
-            //   if(fileName){
-            //     this.setState({
-            //       buttonShow:false
-            //     })
-            //   }
-            // console.log("my file name ==>", fileName);
-
-            //   this.setState({image: fileName});
+            this.uploadPhoto(resp.uri);
           }
         },
       )
     }
   }
+
+
 
   openImageLib = async () => {
     const granted = await PermissionsAndroid.request(
@@ -104,52 +100,49 @@ export default class Editprofile extends Component {
             let img = { uri: resp.uri };
             this.setState({ showModal: false })
             this.setState({ logo: img, uploaded: true });
-            // console.log("resp.fileName==>", resp.base64);
-            // console.log("resp.fileName==>", img.base64);
             console.log("fileName==>", resp.uri);
-            const fileName = await uploadPhoto(resp.uri);
-            console.log(fileName,"url edit page")
-            // const fileName = uploadPhoto(img.uri);
-            //   if(fileName){
-            //     this.setState({
-            //       buttonShow:false
-            //     })
-            //   }
-            // console.log("my file name ==>", fileName);
-
-            //   this.setState({image: fileName});
+            this.uploadPhoto(resp.uri);
+            
           }
         },
       )
     }
   }
 
-  updateProf = async () => {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      console.log('User email: ', user);
-    }
-    const update = {
-      displayName: this.state.name,
-      phoneNumber: this.state.phone
-    };
-    await firebase.auth().currentUser.updateProfile(update);
-    this.props.navigation.push('Profile')
-    // try {
-    //   // const userCredentials = await auth()
-    //   //   .createUserWithEmailAndPassword(this.state.name, this.state.password);
-    //   if (userCredentials.user) {
-    //     console.log(userCredentials.user);
-    //     await userCredentials.user.updateProfile({
-    //       displayName: 'Nawal'
-    //     });
-    //     await userCredentials.user.reload();
-    //     this.setState({ user: firebase.auth().currentUser });
-    //     console.warn('yo:', this.state.user);
-    //   }
-    // } catch (error) {
-    //   console.warn(`error:, ${error}`);
-    // }
+  uploadPhoto = (imageData) => {
+    const imageFile = imageData.split(',').pop();
+  console.log("My image File", imageFile)
+  const uuid = uuidv4();
+  // console.log(uuid,"<++")
+  const imageName = `${uuid}.${imageFile}`;
+  // console.log(imageName,"dekhte hain")
+  var storageref = firebase.storage().ref(`profile.image/${imageName}`)
+  storageref.putFile(imageData)
+    .on(
+      firebase.storage.TaskEvent.STATE_CHANGED,
+      snapshot => {
+        // console.log(snapshot, "lets see")
+        this.setState({loader:false})
+        if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
+          console.log(snapshot.ref.path,"here is the code")
+          this.setState({loader:true})
+          firebase.storage().ref(snapshot.ref.path).getDownloadURL().then((downloadURL) => {
+            // console.log("file avilable", downloadURL)
+            Toast.show({
+              text:'Picture updatetd successfully'
+            })
+            const update = {
+              photoURL: downloadURL
+            };
+            firebase.auth().currentUser.updateProfile(update);
+          })
+        }
+      },
+      error => {
+        unsubscribe();
+        console.log(error.toString())
+      }
+    )
   }
 
   render() {
@@ -174,24 +167,21 @@ export default class Editprofile extends Component {
           showsVerticalScrollIndicator={true}
         >
           <ImageBackground source={this.state.logo} style={{ height: 180, width: '100%' }}>
+            {this.state.loader && (
             <View style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
               <Button onPress={() => this.OpenPicker()} transparent>
                 <Icon name="camera" style={{ color: AppTheme.PRIMARY, fontSize: 40 }} />
               </Button>
             </View>
+            )}
+            {!this.state.loader && (
+              <View style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
+                <ActivityIndicator size="large" color="#00ff00" />
+              </View>
+            )}
           </ImageBackground>
-          <View style={{ paddingTop: 20 }}>
-            <View style={styles.textView}>
-              <View style={{ justifyContent: 'center', flex: 0.1 }}>
-                <Icon style={{ color: AppTheme.PRIMARY }} name="cellphone" type='MaterialCommunityIcons' />
-              </View>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  value={this.state.name}
-                  onChangeText={(e) => this.setState({ name: e })}
-                  placeholder="Enter your Name" style={{ paddingLeft: 5 }} />
-              </View>
-            </View>
+          <View style={{ padding:10 }}>
+            <Text style={{fontSize:25, fontWeight:'bold'}}>Upload your profile Picture</Text>
           </View>
         </ScrollView>
         <Modal transparent={true} animationType="fade" visible={this.state.showModal} >
@@ -214,9 +204,6 @@ export default class Editprofile extends Component {
             </View>
           </TouchableOpacity>
         </Modal>
-        <Button full onPress={() => this.updateProf()}>
-          <Text style={{ color: '#fff' }}>Update</Text>
-        </Button>
       </Container>
     );
   }
