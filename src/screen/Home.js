@@ -1,12 +1,14 @@
 import { Button, Container, Left, Icon, Right, Body, Title, Input, Card, CardItem, Content } from 'native-base';
 import React, { Component } from 'react'
-import { Text, TouchableOpacity, View, Dimensions, StyleSheet, ScrollView, Image, BackHandler } from 'react-native'
+import { Text, TouchableOpacity, View, Dimensions, StyleSheet, ScrollView, Image, BackHandler,PermissionsAndroid } from 'react-native'
 import { WebView } from 'react-native-webview';
 import AppHeader from '../components/AppHeader'
 import AppFooter from '../components/AppFooter';
 import { SliderBox } from "react-native-image-slider-box";
 import { AppTheme } from '../themes/AppTheme';
 import auth from '@react-native-firebase/auth';
+import Geolocation from '@react-native-community/geolocation';
+import firestore from '@react-native-firebase/firestore';
 const win = Dimensions.get('window');
 
 
@@ -28,15 +30,39 @@ export default class Home extends Component {
     
 
     componentDidMount() {
-        // this.subscribe = auth().onAuthStateChanged(user => {
-        //     if (!user) {
-        //         console.log("hello")
-        //     }
-        //     console.log(user,"details")
-        // });
+        this.subscribe = auth().onAuthStateChanged(user => {
+            if (!user) {
+                console.log("hello")
+            }
+            console.log(user,"details")
+        });
+        this.setGeoLocation()
     }
 
     
+
+    setGeoLocation = async() => {
+        const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          );
+          if (granted == PermissionsAndroid.RESULTS.GRANTED) {
+            Geolocation.getCurrentPosition(info => {
+                console.log(info.coords.latitude,"lang info")
+                this.updateLocation(info.coords.latitude, info.coords.longitude)
+            });
+          }else{
+              console.log("permission denied")
+          }
+    }
+    
+    updateLocation = (lat, long) =>{
+        // console.log(lat,"<=latitude and longitude =>", long)
+        const data = firestore().doc('User/W65wx13dCKNn7MzVqDQW')
+        .update({
+            'info.address.location':new firestore.GeoPoint(lat, long),
+        })
+        console.log(data,"<====data")
+    }
 
     render() {
         const {navigate} = this.props.navigation

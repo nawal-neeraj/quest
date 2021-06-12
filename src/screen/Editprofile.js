@@ -36,17 +36,7 @@ export default class Editprofile extends Component {
 
   }
   componentDidMount() {
-    const user = firebase.auth().currentUser;
-
-    if (user) {
-      console.log('User email: ', user);
-    }
-
-    //     if (!user) {
-    //         console.log("hello")
-    //     }
-    //     console.log(user._user,"details")
-    // });
+    
   }
 
   openCamera = async () => {
@@ -100,7 +90,7 @@ export default class Editprofile extends Component {
             let img = { uri: resp.uri };
             this.setState({ showModal: false })
             this.setState({ logo: img, uploaded: true });
-            console.log("fileName==>", resp.uri);
+            // console.log("fileName==>", resp.uri);
             this.uploadPhoto(resp.uri);
             
           }
@@ -110,12 +100,15 @@ export default class Editprofile extends Component {
   }
 
   uploadPhoto = (imageData) => {
-    const imageFile = imageData.split(',').pop();
-  console.log("My image File", imageFile)
+  console.log("Raw image file",imageData)
+  // const popImage = imageData.split(',');
+  // console.log("Only spliced",popImage)
+  const imageFile = imageData.split(',').pop();
+  console.log("Poped image File", imageFile)
   const uuid = uuidv4();
   // console.log(uuid,"<++")
   const imageName = `${uuid}.${imageFile}`;
-  // console.log(imageName,"dekhte hain")
+  console.log("final changed image file",imageName)
   var storageref = firebase.storage().ref(`profile.image/${imageName}`)
   storageref.putFile(imageData)
     .on(
