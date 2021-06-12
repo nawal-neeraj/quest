@@ -7,7 +7,7 @@ import AppFooter from '../components/AppFooter';
 import { SliderBox } from "react-native-image-slider-box";
 import { AppTheme } from '../themes/AppTheme';
 import auth from '@react-native-firebase/auth';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import firestore from '@react-native-firebase/firestore';
 const win = Dimensions.get('window');
 
@@ -24,19 +24,14 @@ export default class Home extends Component {
                 "https://source.unsplash.com/1024x768/?tree",
             ]
         };
-        // this.biometriCheck();
+
+        
     }
 
     
 
     componentDidMount() {
-        this.subscribe = auth().onAuthStateChanged(user => {
-            if (!user) {
-                console.log("hello")
-            }
-            console.log(user,"details")
-        });
-        this.setGeoLocation()
+       this.setGeoLocation()
     }
 
     
@@ -49,19 +44,25 @@ export default class Home extends Component {
             Geolocation.getCurrentPosition(info => {
                 console.log(info.coords.latitude,"lang info")
                 this.updateLocation(info.coords.latitude, info.coords.longitude)
-            });
+            }, (error) => {
+                // See error code charts below.
+                console.log(error.code, error.message);
+              }, 
+              { enableHighAccuracy: true, interval:1000 });
+           
           }else{
               console.log("permission denied")
           }
     }
     
+    
     updateLocation = (lat, long) =>{
         // console.log(lat,"<=latitude and longitude =>", long)
-        const data = firestore().doc('User/W65wx13dCKNn7MzVqDQW')
-        .update({
+        const data = firestore().collection('Users')
+        .add({
             'info.address.location':new firestore.GeoPoint(lat, long),
         })
-        console.log(data,"<====data")
+        
     }
 
     render() {
@@ -83,7 +84,6 @@ export default class Home extends Component {
                 </AppHeader>
                 <Content>
                     <View style={{ flex: 1, padding: 10 }}>
-                        {/* <WebView source={{uri:'https://www.firstpay.org.in/'}}/> */}
                         <View style={{ height: 200 }}>
                             <SliderBox
                                 style={{ width: win.width * 0.95, height: 200, borderRadius: 15, }}
@@ -99,15 +99,8 @@ export default class Home extends Component {
                                 inactiveDotColor='transparent'
                             />
                         </View>
-
-                        {/*----- another section -----  */}
-
-                        {/*------- prepaid recharge section------- */}
-
                         <View style={{ paddingTop: 20 }}>
                             <View style={styles.Box}>
-                                {/* <Card style={{ borderRadius: 20 }}>
-                                <CardItem > */}
                                 <View >
                                     <View style={{ padding: 5 }}>
                                         <Text style={{ fontWeight: 'bold' }}>Prepaid recharges</Text>
